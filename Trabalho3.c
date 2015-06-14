@@ -7,6 +7,7 @@ int getTamLinha(FILE *file);
 int getTamColuna(FILE *file);
 void makeMatriz(FILE *file, char (*matriz)[TAM][TAM], int *tamColuna, int *tamLinha);
 void printaMatriz( char (*matriz)[TAM][TAM], int tamLinha, int tamColuna );
+void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], int tamColuna, int tamLinha);
 
 int main ( void )
 {
@@ -23,12 +24,20 @@ int main ( void )
 	}
 	else{
 		makeMatriz(file, &Mat, &tamColuna, &tamLinha);
-		printf("TamColuna: %d\n", tamColuna);
-		printf("TamLinha: %d\n", tamLinha);
-		printaMatriz(&Mat, tamLinha , tamColuna);
+		putMatrizNoArquivo(fileout, Mat, tamColuna, tamLinha);
 		fclose(file);
 	}
 	return 0;
+}
+
+void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], int tamColuna, int tamLinha ){
+	int i,j;
+	
+	for( i = 0 ; i < tamLinha ; i++ ){
+		for( j = 0 ; j < tamColuna ; j++ )
+			fprintf(file, "%c", matriz[i][j] );
+	fprintf(file, "\n");
+	}
 }
 
 void printaMatriz( char (*matriz)[TAM][TAM], int tamLinha, int tamColuna ){
@@ -67,3 +76,4 @@ int getTamColuna(FILE *file){
 	fscanf(file, "%d", &tamColuna);
 	return tamColuna;
 }
+
