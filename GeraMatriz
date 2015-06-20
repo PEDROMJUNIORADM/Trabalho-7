@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main(void){
+   static const char fileNameOut[] = "resposta1.txt";
+   FILE *fileOut = fopen (fileNameOut, "w");
+   int i, j, tamLinha, tamColuna;
+   scanf("%d %d", &tamLinha, &tamColuna);
+   
+   char **Mat = (char**) malloc(tamColuna*sizeof(char*));
+   for ( i = 0; i < tamLinha; i++ ){
+	   Mat[i] = (char*) malloc(tamLinha*sizeof(char));
+    }
+	for( i = 0 ; i < tamLinha ; i++ )
+		for( j = 0 ; j < tamColuna ; j++ )
+			Mat[i][j] = 'a' + random()%26;
+			
+	fprintf(fileOut, "%d %d\n", tamLinha, tamColuna);		
+	for( i = 0 ; i < tamLinha ; i++){
+		for( j = 0 ; j < tamColuna ; j++ )
+			fprintf(fileOut, "%c", Mat[i][j] );fprintf(fileOut, "\n");}
+	return;
+}
