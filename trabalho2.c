@@ -3,13 +3,38 @@
 //   Alunos: Leonardo Fuchs, Caique Minhare e Diogo Souza
 //[]----------------------------------------------------[]
 
-//#include <pthread.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> //Abrir arquivo
 #include <string.h>
+//#include <ctype.h> //Nao tenho certeza se precisa destas (Olhar testando.c)
+//#include <stddef.h>
+#include <assert.h> //Para o toupper
 
-//void varreLinha(); // Varre a linha procurando por uma palavra
+#define MAX 100 // Maior palavra = 47letras
+
+//[]----------------------------------------------------[]
+//|  Funcao que torna a palavra maiuscula
+//[]----------------------------------------------------[]
+char* strtoupper(char* s, int x) {
+  assert(s != NULL);
+
+  char* p = s;
+  int aux = x;
+  int cont = 0;
+  for(cont = 0; cont < aux; cont++){
+//  while (*p != '\0') {
+    *p = toupper(*p);
+    p++;
+  }
+
+  return s;
+}
+
+//[]----------------------------------------------------[]
+//|  Funcao que transforma a matriz em sua transposta
+//[]----------------------------------------------------[]
 char transposto(int linha, int coluna, char matriz[linha][coluna])
 {
 	int i, j, aux;
@@ -26,7 +51,7 @@ char transposto(int linha, int coluna, char matriz[linha][coluna])
    			}
    		}
    	}
-} // Transforma a matriz em sua transposta
+}
 
 
 int main(int argc, char *argv[])
@@ -41,6 +66,9 @@ int main(int argc, char *argv[])
 
 
 
+//[]----------------------------------------------------[]
+//|  Verificando abertura e salvamento do arquivo
+//[]----------------------------------------------------[]
 	FILE *input, *output;
 	input = fopen("entrada.txt", read);
 
@@ -77,16 +105,28 @@ int main(int argc, char *argv[])
 	{
 		for(j = 0; j < coluna; j++)
 			fprintf(output, "%c", cacaPalavra[i][j]);
-		fprintf(output, "\n");
+		if(i + 1 != linha) //Gambiarra para nao fazer o ultimo \n
+			fprintf(output, "\n");
 	}
 
 //[]----------------------------------------------------[]
 //|  Escanear palavras procuradas do arquivo
-//[]----------------------------------------------------[]
-	/*char search[MAX];
-	for(cont = 0; cont != EOF; cont++)	
-		fscanf(file "%[^\0]" &search[cont]);
-	*/
+// []----------------------------------------------------[]
+	 int numeroPalavras = 0;
+	 char c[MAX][0]; //Tentar c[MAX][0] e c[MAX];
+	 while(1)
+   	{
+      c[numeroPalavras][0] = fgetc(input);
+      if(feof(input))
+      { 
+         break ;
+      }
+      fprintf(output, "%c", c[numeroPalavras][0]);
+      numeroPalavras++;
+
+   	}
+   //fprintf(output, "\n");
+
 //[]----------------------------------------------------[]
 //|  Fechar arquivo
 //[]----------------------------------------------------[]
@@ -103,7 +143,6 @@ int main(int argc, char *argv[])
 	for(i = 0; i < linha; i++)
 		for(j = 0; j < coluna; j++)
 			normal[linha][coluna] = cacaPalavra[linha][coluna];
-
 	for(i = 0; i < linha; i++)
 		for(j = 0; j < coluna; j++)
 			transposta[linha][coluna] = transposto(linha, coluna, cacaPalavra[linha][coluna]);
@@ -114,8 +153,6 @@ int main(int argc, char *argv[])
 //[]----------------------------------------------------[]
 /*	numberOfThreads = atoi(argv[1]); 
 	pthread_t threads[numberOfThreads];
-
-
 //[]----------------------------------------------------[]
 //|  Criacao das threads para as linhas
 //[]----------------------------------------------------[]
@@ -129,7 +166,6 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	}
-
 //[]----------------------------------------------------[]
 //|  Criacao das threads para as colunas
 //[]----------------------------------------------------[]	
@@ -157,5 +193,3 @@ int main(int argc, char *argv[])
 
 return 0;
 }
-
-
