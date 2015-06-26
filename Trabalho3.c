@@ -18,21 +18,20 @@ void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], i
 void *searchNaMatriz(void *vp_Value);
 
 
-int main ( void )
-{
+int main (int argc, char *argv[]){
    static const char filename[] = "file.txt";
    static const char filenameout[] = "resposta.txt";
    FILE *file = fopen ( filename, "r" );
    FILE *fileout = fopen (filenameout, "w");
    int i=0, j, num_Threads;
    pthread_t threads[NUM_THREADS];
-   
+   num_Threads = atoi(argv[1]);
 	if( file == NULL ){
 		fprintf(stdout, "Impossivel abrir arquivo.\n");
 		return(-1);
 	}
 	else{
-		scanf("%d", &num_Threads);
+		//scanf("%d", &num_Threads);
 		makeMatriz(file, &Mat, MatMatches, &tamColuna, &tamLinha, &qntdPalavras);
 		while( i < num_Threads ){
 			for( j = 0 ; j <  qntdPalavras/num_Threads ; j++ )
