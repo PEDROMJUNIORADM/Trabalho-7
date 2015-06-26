@@ -1,0 +1,275 @@
+//[]----------------------------------------------------[]
+//|  Trabalho 1 Sistemas Operacionais. 
+//   Alunos: Leonardo Fuchs, Caique Minhare e Diogo Souza
+//[]----------------------------------------------------[]
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <pthread.h>
+#include <stddef.h>
+#include <assert.h>
+
+#define TAM 100
+#define NUM_THREADS 256
+
+
+//[]----------------------------------------------------[]
+//|  Declarações
+//[]----------------------------------------------------[]
+int tamColuna, tamLinha, qntdPalavras;
+char Mat[TAM][TAM], MatMatches[TAM][TAM], MatResposta[TAM][TAM];
+
+//[]----------------------------------------------------[]
+//|  Funcoes para escanear o arquivo de entrada
+//[]----------------------------------------------------[]
+int getTamLinha(FILE *file);
+int getTamColuna(FILE *file);
+void makeMatriz(FILE *file, char (*matriz)[TAM][TAM], char mat[TAM][TAM], int *tamColuna, int *tamLinha, int *qntdPalavras);
+
+//[]----------------------------------------------------[]
+//|  Funcoes para printar a saida do arquivo
+//[]----------------------------------------------------[]
+void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], int qntdPalavras, int tamColuna, int tamLinha);
+
+//[]----------------------------------------------------[]
+//|  Funcoes auxiliares
+//[]----------------------------------------------------[]
+void *searchNaMatriz(void *vp_Value);
+void printaMatriz(char (*matriz)[TAM][TAM], int tamLinha, int tamColuna);
+char* strtoupper(char* s, int x);
+
+//[]----------------------------------------------------[]
+//|  Inicio da Main
+//[]----------------------------------------------------[]	
+int main (int argc, char *argv[])
+{
+
+//[]----------------------------------------------------[]
+//|  Declarações
+//[]----------------------------------------------------[]	
+   static const char filename[] = "file.txt"; // Arquivo de entrada se chama file.txt
+   static const char filenameout[] = "resposta.txt"; // Arquivo de saida se chama resposta.txt
+
+   FILE *file = fopen (filename, "r");
+   FILE *fileout = fopen (filenameout, "w");
+
+   int i = 0, j, num_Threads;
+
+   pthread_t threads[NUM_THREADS]; 
+
+   //num_Threads = atoi(argv[1]);
+
+
+//[]----------------------------------------------------[]
+//|  Abertura do arquivo e salvamento no arquivo de saida
+//[]----------------------------------------------------[]	
+	if(file == NULL) //Conferindo se o arquivo foi aberto
+	{
+		fprintf(stdout, "Impossivel abrir arquivo.\n");
+		return(-1);
+	}
+	else
+	{
+		scanf("%d", &num_Threads);
+		makeMatriz(file, &Mat, MatMatches, &tamColuna, &tamLinha, &qntdPalavras); // Chama a funcao makeMatriz que absorve os dados do file.txt
+
+		while(i < num_Threads)
+		{
+			for(j = 0; j < qntdPalavras/num_Threads; j++) //?????
+				pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+
+			pthread_join(threads[i] , NULL);
+			i++;
+
+			for(j = qntdPalavras/num_Threads; j <= qntdPalavras; j++) //??????
+				pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+
+			//pthread_exit(NULL);
+		}
+
+		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
+		fclose(file);
+	}
+	return 0;
+}
+//[]----------------------------------------------------[]
+//|  Fim da Main
+//[]----------------------------------------------------[]	
+
+
+
+//[]----------------------------------------------------[]
+//|  Procura na matriz por uma palavra
+//[]----------------------------------------------------[]	
+void *searchNaMatriz(void *vp_Value)
+{
+	int i, k, j, l, o;
+	char *charHelper = ((char *) vp_Value); //A palavra a ser pesquisada eh armazenada em charHelper
+
+		for(k = 0; k < tamLinha; k++)
+		{
+			for(j = 0; j < tamColuna; j++)
+			{
+				if(Mat[k][j] == charHelper[k]) 
+					// Procura na direita // 
+					if (tamColuna >= (strlen(charHelper)+j))
+					{ 
+						for(l = 0; charHelper[l] == Mat[j+l][k]; l++)
+						{
+							if(charHelper[l+1] == '\0')
+							{
+								//strncpy (Mat[j+l][k], strtoupper(Mat[j+l][k], 2), 2); 
+								printf("Matched: %s em %d %d\n", charHelper, j, k);
+								return;
+							}
+						}
+					}
+					// Procura na esquerda //
+					if (0 <= (j - strlen(charHelper) ))
+					{ 							
+						for(l = 0; charHelper[l] == Mat[j-l][k]; l++)
+						{
+							if(charHelper[l+1]=='\0')
+							{
+								//strncpy (Mat[j-l][k], strtoupper(Mat[j-l][k], 2), 2); 
+								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								return;
+							}
+						}
+					}
+					// Procura na Coluna baixo - cima//
+					if (tamLinha >= (strlen(charHelper) + k))
+					{ 
+						for(l = 0; charHelper[l] == Mat[j][k+l]; l++)
+						{
+							if(charHelper[l+1]=='\0')
+							{
+								//strncpy (Mat[j][k+l], strtoupper(Mat[j][k+l], 2), 2); 
+								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								return;
+							}
+						}
+					}
+					// Procura na Coluna cima - baixo //
+					if (0 <= (k - strlen(charHelper)))
+					{ 
+						for(l = 0; charHelper[l] == Mat[j][k-l]; l++)
+						{
+							if(charHelper[l+1]=='\0')
+							{
+								//strncpy (Mat[j][k-l], strtoupper(Mat[j][k-l], 2), 2); 
+								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								return;
+							}
+						}
+					}
+			}
+		}
+}
+
+//[]----------------------------------------------------[]
+//|  Gera o arquivo de saida
+//[]----------------------------------------------------[]	
+void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], int qntdPalavras, int tamColuna, int tamLinha)
+{
+	int i,j;
+	
+	for( i = 0 ; i < tamLinha; i++ )
+	{
+		for(j = 0; j < tamColuna; j++ )
+			fprintf(file, "%c", matriz[i][j]);
+	fprintf(file, "\n");
+	}
+	/*	fprintf(file, "\nPalavras da matriz de matches\n");
+
+	for( i = 0 ; i <= qntdPalavras ; i++ )
+		fprintf(file, "%s\n", mat[i]);
+	*/
+}
+
+//[]----------------------------------------------------[]
+//|  Imprime a matriz para verificacao
+//[]----------------------------------------------------[]	
+/*void printaMatriz(char (*matriz)[TAM][TAM], int tamLinha, int tamColuna)
+{
+	int i, j;
+	for(i = 0 ; i < tamLinha ; i++)
+	{
+		for(j = 0; j < tamColuna; j++)
+			printf("%c", (*matriz)[i][j]);
+		printf("\n");
+	}
+	printf("\n");
+}*/
+
+//[]----------------------------------------------------[]
+//|  Absorve o arquivo de entrada
+//[]----------------------------------------------------[]	
+void makeMatriz(FILE *file, char (*matriz)[TAM][TAM], char mat[TAM][TAM], int *tamColuna, int *tamLinha, int *qntdPalavras)
+{
+	int tamLin, tamCol, i, j, qntPal;
+	char dado, palavra[TAM];
+
+	tamLin = getTamLinha(file);
+	tamCol = getTamColuna(file);
+
+	qntPal = 0;
+	
+	*tamColuna = tamCol;
+	*tamLinha = tamLin;
+	*qntdPalavras = qntPal;
+	
+	for(i = 0 ; i <= tamLin ; i++)
+	{
+		if(i == tamLin) //significa que ja acabou a matriz e vamos comecar a scanear as palavras
+		{
+			while(fscanf(file, " %s", palavra) != EOF)
+			{
+				strcpy(mat[qntPal] , palavra); //mat recebe a palavra
+				*qntdPalavras = qntPal++; //a quantidade de palavras eh incrementada
+			}
+			break; //Se saiu do loop eh porque acabaram as palavras
+		}
+
+		for(j = 0; j < tamCol; j++)
+		{
+			fscanf(file, " %c", &dado); //escaneio a linha da matriz
+			(*matriz)[i][j] = dado; // salvo ela em matriz
+		}
+
+	}
+}
+
+int getTamLinha(FILE *file)
+{
+	int tamLinha;
+	fscanf(file, "%d", &tamLinha);
+	return tamLinha;
+}
+
+int getTamColuna(FILE *file)
+{
+	int tamColuna;
+	fscanf(file, "%d", &tamColuna);
+	return tamColuna;
+}
+
+
+char* strtoupper(char* s, int x) 
+{
+	assert(s != NULL);
+
+	char* p = s;
+	int aux = x;
+	int cont = 0;
+
+	for(cont = 0; cont < aux; cont++)
+	{
+		//while (*p != '\0') {
+    	*p = toupper(*p);
+    	p++;
+  	}
+  	return s;
+}
