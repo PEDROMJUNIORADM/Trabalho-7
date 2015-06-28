@@ -105,7 +105,7 @@ int main (int argc, char *argv[])
 //[]----------------------------------------------------[]	
 void *searchNaMatriz(void *vp_Value)
 {
-	int i, k, j, l, o;
+	int i, k, j, l, o, contadorLetra;
 	char *charHelper = ((char *) vp_Value); //A palavra a ser pesquisada eh armazenada em charHelper
 
 		for(k = 0; k < tamLinha; k++)
@@ -120,8 +120,9 @@ void *searchNaMatriz(void *vp_Value)
 						{
 							if(charHelper[l+1] == '\0')
 							{
-								//strncpy (Mat[j+l][k], strtoupper(Mat[j+l][k], 2), 2); 
-								printf("Matched: %s em %d %d\n", charHelper, j, k);
+								contadorLetra = strlen(charHelper);
+								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
+								//printf("Matched: %s em %d %d\n", charHelper, j, k);
 								return;
 							}
 						}
@@ -133,8 +134,9 @@ void *searchNaMatriz(void *vp_Value)
 						{
 							if(charHelper[l+1]=='\0')
 							{
-								//strncpy (Mat[j-l][k], strtoupper(Mat[j-l][k], 2), 2); 
-								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								contadorLetra = strlen(charHelper);
+								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
+								//printf("Matched: %s em %d %d\n",charHelper, j, k);
 								return;
 							}
 						}
@@ -146,8 +148,9 @@ void *searchNaMatriz(void *vp_Value)
 						{
 							if(charHelper[l+1]=='\0')
 							{
-								//strncpy (Mat[j][k+l], strtoupper(Mat[j][k+l], 2), 2); 
-								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								contadorLetra = strlen(charHelper);
+								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
+								//printf("Matched: %s em %d %d\n",charHelper, j, k);
 								return;
 							}
 						}
@@ -159,8 +162,9 @@ void *searchNaMatriz(void *vp_Value)
 						{
 							if(charHelper[l+1]=='\0')
 							{
-								//strncpy (Mat[j][k-l], strtoupper(Mat[j][k-l], 2), 2); 
-								printf("Matched: %s em %d %d\n",charHelper, j, k);
+								contadorLetra = strlen(charHelper);
+								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
+								//printf("Matched: %s em %d %d\n",charHelper, j, k);
 								return;
 							}
 						}
@@ -183,7 +187,6 @@ void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], i
 	fprintf(file, "\n");
 	}
 	/*	fprintf(file, "\nPalavras da matriz de matches\n");
-
 	for( i = 0 ; i <= qntdPalavras ; i++ )
 		fprintf(file, "%s\n", mat[i]);
 	*/
@@ -259,15 +262,12 @@ int getTamColuna(FILE *file)
 
 char* strtoupper(char* s, int x) 
 {
-	assert(s != NULL);
-
 	char* p = s;
 	int aux = x;
 	int cont = 0;
 
 	for(cont = 0; cont < aux; cont++)
 	{
-		//while (*p != '\0') {
     	*p = toupper(*p);
     	p++;
   	}
