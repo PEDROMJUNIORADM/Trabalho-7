@@ -52,14 +52,14 @@ int main (int argc, char *argv[])
    static const char filename[] = "file.txt"; // Arquivo de entrada se chama file.txt
    static const char filenameout[] = "resposta.txt"; // Arquivo de saida se chama resposta.txt
 
-   FILE *file = fopen (filename, "r");
+   FILE *file = fopen (argv[1], "r");
    FILE *fileout = fopen (filenameout, "w");
 
    int i = 0, j, num_Threads;
 
    pthread_t threads[NUM_THREADS]; 
  
-   num_Threads = atoi(argv[1]);
+   num_Threads = atoi(argv[2]);
 
 
 //[]----------------------------------------------------[]
@@ -85,6 +85,7 @@ int main (int argc, char *argv[])
 					{
 						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
 						flag++;
+						pthread_join(threads[i], NULL);
 					}
 					else // Flag no maximo, zero o i e espero a primeira iteracao
 					{
@@ -93,13 +94,16 @@ int main (int argc, char *argv[])
 					}
 				}
 
-				else if(qntdPalavras == num_Threads){ //Segunda possibilidade
+				else if(qntdPalavras == num_Threads)
+				{ //Segunda possibilidade
 						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
-						pthread_join(threads[i], NULL);}
+						pthread_join(threads[i], NULL);
+				}
 
 				else{ //Terceira possibilidade
 					pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
-					pthread_join(threads[i], NULL);}
+					pthread_join(threads[i], NULL);
+				}
 			}
 		}		
 		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
@@ -139,7 +143,7 @@ void *searchNaMatriz(void *vp_Value)
 {
 	int i, k, j, l, o, contadorLetra, cont;
 	char *charHelper = ((char *) vp_Value); //A palavra a ser pesquisada eh armazenada em charHelper
-
+	
 		for(k = 0; k < tamLinha; k++)
 		{
 			for(j = 0; j < tamColuna; j++)
@@ -147,13 +151,11 @@ void *searchNaMatriz(void *vp_Value)
 					// Cima para baixo// 
 					if (tamColuna >= (strlen(charHelper)))
 					{ 
-						for(l = 0; charHelper[l] == Mat[j+l][k]; l++)
+						for(l = 0; charHelper[l] == tolower(Mat[j+l][k]); l++)
 						{
 							if(charHelper[l+1] == '\0')
 							{
 								contadorLetra = strlen(charHelper);
-								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								printf("Matched: %s em %d %d\n", charHelper, j+1, k+1);
 								for( cont = 0 ; cont < contadorLetra ; cont++ )
 									Mat[j+cont][k] = toupper(Mat[j+cont][k]);
 								return;
@@ -163,12 +165,11 @@ void *searchNaMatriz(void *vp_Value)
 					// Baixo para cima //
 					if (0 <= (j - strlen(charHelper) ))
 					{ 							
-						for(l = 0; charHelper[l] == Mat[j-l][k]; l++)
+						for(l = 0; charHelper[l] == tolower(Mat[j-l][k]); l++)
 						{
 							if(charHelper[l+1]=='\0')
 							{
 								contadorLetra = strlen(charHelper);
-								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
 								for( cont = 0 ; cont < contadorLetra ; cont++ )
 									Mat[j-cont][k] = toupper(Mat[j-cont][k]);
 								return;
@@ -178,13 +179,11 @@ void *searchNaMatriz(void *vp_Value)
 					//Esquerda para direita//
 					if (tamLinha >= (strlen(charHelper) + k))
 					{ 
-						for(l = 0; charHelper[l] == Mat[j][k+l]; l++)
+						for(l = 0; charHelper[l] == tolower(Mat[j][k+l]); l++)
 						{
 							if(charHelper[l+1]=='\0')
 							{
 								contadorLetra = strlen(charHelper);
-								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
 								for( cont = 0 ; cont < contadorLetra ; cont++ )
 									Mat[j][k+cont] = toupper(Mat[j][k+cont]);
 								return;
@@ -194,13 +193,11 @@ void *searchNaMatriz(void *vp_Value)
 					// Direita para esquerda //
 					if (0 <= (k - strlen(charHelper)))
 					{ 
-						for(l = 0; charHelper[l] == Mat[j][k-l]; l++)
+						for(l = 0; charHelper[l] == tolower(Mat[j][k-l]); l++)
 						{
 							if(charHelper[l+1]=='\0')
 							{
 								contadorLetra = strlen(charHelper);
-								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
 								for( cont = 0 ; cont < contadorLetra ; cont++ )
 									Mat[j][k-cont] = toupper(Mat[j][k-cont]);
 								return;
