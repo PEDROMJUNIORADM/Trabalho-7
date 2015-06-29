@@ -75,7 +75,40 @@ int main (int argc, char *argv[])
 		scanf("%d", &num_Threads);
 		makeMatriz(file, &Mat, MatMatches, &tamColuna, &tamLinha, &qntdPalavras); // Chama a funcao makeMatriz que absorve os dados do file.txt
 
-		while(i < num_Threads)
+		for(i = 0; i < num_Threads; i++)
+		{
+			for(j = 0; j < qntdPalavras; j++) 
+			{
+				int flag = 0; //Possuiremos 3 possibilidades
+				if(qntdPalavras > num_Threads) // Primeira possibilidade
+				{
+					if(flag <= num_Threads) //Incremento a flag, quando ela estiver no maximo, preciso esperar
+					{
+						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+						flag++;
+					}
+					else // Flag no maximo, zero o i e espero a primeira iteracao
+					{
+						i = 0;
+						pthread_join(threads[i], NULL);
+					}
+				}
+
+				else if(qntdPalavras == num_Threads) //Segunda possibilidade
+				{
+						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+				}
+
+				else(qntdPalavras < num_Threads) //Terceira possibilidade
+				{
+					pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+				}
+			}
+		}
+		pthread_exit(NULL);
+
+		/* METODO ANTIGO DE CRIACAO
+			while(i < num_Threads)
 		{
 			for(j = 0; j < qntdPalavras/num_Threads; j++) //?????
 				pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
@@ -88,6 +121,7 @@ int main (int argc, char *argv[])
 
 			//pthread_exit(NULL);
 		}
+		*/
 
 		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
 		fclose(file);
