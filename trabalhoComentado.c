@@ -58,8 +58,8 @@ int main (int argc, char *argv[])
    int i = 0, j, num_Threads;
 
    pthread_t threads[NUM_THREADS]; 
-
-   //num_Threads = atoi(argv[1]);
+ 
+   num_Threads = atoi(argv[1]);
 
 
 //[]----------------------------------------------------[]
@@ -72,7 +72,6 @@ int main (int argc, char *argv[])
 	}
 	else
 	{
-		scanf("%d", &num_Threads);
 		makeMatriz(file, &Mat, MatMatches, &tamColuna, &tamLinha, &qntdPalavras); // Chama a funcao makeMatriz que absorve os dados do file.txt
 
 		for(i = 0; i < num_Threads; i++)
@@ -94,14 +93,17 @@ int main (int argc, char *argv[])
 					}
 				}
 
-				else if(qntdPalavras == num_Threads) //Segunda possibilidade
+				else if(qntdPalavras == num_Threads){ //Segunda possibilidade
 						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+						pthread_join(threads[i], NULL);}
 
-				else //Terceira possibilidade
+				else{ //Terceira possibilidade
 					pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
+					pthread_join(threads[i], NULL);}
 			}
-		}
+		}		
 		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
+		//printaMatriz(&Mat,tamLinha, tamColuna);
 		fclose(file);
 		pthread_exit(NULL);
 
@@ -135,7 +137,7 @@ int main (int argc, char *argv[])
 //[]----------------------------------------------------[]	
 void *searchNaMatriz(void *vp_Value)
 {
-	int i, k, j, l, o, contadorLetra;
+	int i, k, j, l, o, contadorLetra, cont;
 	char *charHelper = ((char *) vp_Value); //A palavra a ser pesquisada eh armazenada em charHelper
 
 		for(k = 0; k < tamLinha; k++)
@@ -152,6 +154,8 @@ void *searchNaMatriz(void *vp_Value)
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
 								printf("Matched: %s em %d %d\n", charHelper, j+1, k+1);
+								for( cont = 0 ; cont < contadorLetra ; cont++ )
+									Mat[j+cont][k] = toupper(Mat[j+cont][k]);
 								return;
 							}
 						}
@@ -165,7 +169,8 @@ void *searchNaMatriz(void *vp_Value)
 							{
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
+								for( cont = 0 ; cont < contadorLetra ; cont++ )
+									Mat[j-cont][k] = toupper(Mat[j-cont][k]);
 								return;
 							}
 						}
@@ -180,6 +185,8 @@ void *searchNaMatriz(void *vp_Value)
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
 								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
+								for( cont = 0 ; cont < contadorLetra ; cont++ )
+									Mat[j][k+cont] = toupper(Mat[j][k+cont]);
 								return;
 							}
 						}
@@ -194,6 +201,8 @@ void *searchNaMatriz(void *vp_Value)
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
 								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
+								for( cont = 0 ; cont < contadorLetra ; cont++ )
+									Mat[j][k-cont] = toupper(Mat[j][k-cont]);
 								return;
 							}
 						}
@@ -224,7 +233,7 @@ void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], i
 //[]----------------------------------------------------[]
 //|  Imprime a matriz para verificacao
 //[]----------------------------------------------------[]	
-/*void printaMatriz(char (*matriz)[TAM][TAM], int tamLinha, int tamColuna)
+void printaMatriz(char (*matriz)[TAM][TAM], int tamLinha, int tamColuna)
 {
 	int i, j;
 	for(i = 0 ; i < tamLinha ; i++)
@@ -234,7 +243,7 @@ void putMatrizNoArquivo(FILE *file, char matriz[TAM][TAM], char mat[TAM][TAM], i
 		printf("\n");
 	}
 	printf("\n");
-}*/
+}
 
 //[]----------------------------------------------------[]
 //|  Absorve o arquivo de entrada
