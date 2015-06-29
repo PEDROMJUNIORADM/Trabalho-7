@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
 
 		for(i = 0; i < num_Threads; i++)
 		{
-			for(j = 0; j < qntdPalavras; j++) 
+			for(j = 0; j <= qntdPalavras; j++) 
 			{
 				int flag = 0; //Possuiremos 3 possibilidades
 				if(qntdPalavras > num_Threads) // Primeira possibilidade
@@ -95,16 +95,14 @@ int main (int argc, char *argv[])
 				}
 
 				else if(qntdPalavras == num_Threads) //Segunda possibilidade
-				{
 						pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
-				}
 
-				else(qntdPalavras < num_Threads) //Terceira possibilidade
-				{
+				else //Terceira possibilidade
 					pthread_create(&threads[i], NULL, searchNaMatriz, &MatMatches[j]);
-				}
 			}
 		}
+		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
+		fclose(file);
 		pthread_exit(NULL);
 
 		/* METODO ANTIGO DE CRIACAO
@@ -123,8 +121,6 @@ int main (int argc, char *argv[])
 		}
 		*/
 
-		putMatrizNoArquivo(fileout, Mat, MatMatches, qntdPalavras, tamColuna, tamLinha); // Armazena a resposta no arquivo de saida
-		fclose(file);
 	}
 	return 0;
 }
@@ -146,9 +142,8 @@ void *searchNaMatriz(void *vp_Value)
 		{
 			for(j = 0; j < tamColuna; j++)
 			{
-				if(Mat[k][j] == charHelper[k]) 
-					// Procura na direita // 
-					if (tamColuna >= (strlen(charHelper)+j))
+					// Cima para baixo// 
+					if (tamColuna >= (strlen(charHelper)))
 					{ 
 						for(l = 0; charHelper[l] == Mat[j+l][k]; l++)
 						{
@@ -156,12 +151,12 @@ void *searchNaMatriz(void *vp_Value)
 							{
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								//printf("Matched: %s em %d %d\n", charHelper, j, k);
+								printf("Matched: %s em %d %d\n", charHelper, j+1, k+1);
 								return;
 							}
 						}
 					}
-					// Procura na esquerda //
+					// Baixo para cima //
 					if (0 <= (j - strlen(charHelper) ))
 					{ 							
 						for(l = 0; charHelper[l] == Mat[j-l][k]; l++)
@@ -170,12 +165,12 @@ void *searchNaMatriz(void *vp_Value)
 							{
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								//printf("Matched: %s em %d %d\n",charHelper, j, k);
+								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
 								return;
 							}
 						}
 					}
-					// Procura na Coluna baixo - cima//
+					//Esquerda para direita//
 					if (tamLinha >= (strlen(charHelper) + k))
 					{ 
 						for(l = 0; charHelper[l] == Mat[j][k+l]; l++)
@@ -184,12 +179,12 @@ void *searchNaMatriz(void *vp_Value)
 							{
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								//printf("Matched: %s em %d %d\n",charHelper, j, k);
+								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
 								return;
 							}
 						}
 					}
-					// Procura na Coluna cima - baixo //
+					// Direita para esquerda //
 					if (0 <= (k - strlen(charHelper)))
 					{ 
 						for(l = 0; charHelper[l] == Mat[j][k-l]; l++)
@@ -198,7 +193,7 @@ void *searchNaMatriz(void *vp_Value)
 							{
 								contadorLetra = strlen(charHelper);
 								strtoupper(charHelper, contadorLetra); // AQUI EU NAO SEI QUAL DEVE SER A PALAVRA A SER AUMENTADA, NAO DEVE SER ESSA
-								//printf("Matched: %s em %d %d\n",charHelper, j, k);
+								printf("Matched: %s em %d %d\n",charHelper, j+1, k+1);
 								return;
 							}
 						}
